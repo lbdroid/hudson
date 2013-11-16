@@ -9,11 +9,10 @@ mkdir -p ../android
 cd ../android
 export WORKSPACE=$PWD
 
-#if [ ! -d hudson ]
-#then
-rm -rf hudson
-git clone git://github.com/lbdroid/hudson.git -b cm-11.0
-#fi
+if [ ! -d hudson ]
+then
+  git clone git://github.com/lbdroid/hudson.git -b cm-11.0
+fi
 
 cd hudson
 ## Get rid of possible local changes
