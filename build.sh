@@ -218,6 +218,8 @@ then
     LUNCH=$(echo $LUNCH@$DEVICEVENDOR | sed -f $WORKSPACE/hudson/shared-repo.map)
 fi
 
+make update-api
+
 lunch $LUNCH
 check_result "lunch failed."
 
