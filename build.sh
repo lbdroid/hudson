@@ -174,6 +174,22 @@ repo sync -d -c > /dev/null
 check_result "repo sync failed."
 echo Sync complete.
 
+if [ ! -z "$CHERRIES" ]; then
+  echo "cherry picking..."
+  for CHERRY in $CHERRIES; do 
+    PROJECT=`echo $CHERRY | cut -d'/' -f2`
+    GITHUBUSER=`echo $CHERRY | cut -d'/' -f1`
+    COMMIT=`echo $CHERRY | cut -d'/' -f4`
+    SUBDIR=`echo $PROJECT | sed 's/android_//g' | sed 's#_#/#g'`
+    echo $PROJECT $GITHUBUSER $COMMIT $SUBDIR
+    cd $SUBDIR
+    git fetch git://github.com/$GITHUBUSER/$PROJECT.git
+    git cherry-pick $COMMIT
+    cd $WORKSPACE/$JENKINS_BUILD_DIR
+  done
+  echo "Cherry picking done."
+fi
+
 if [ -f $WORKSPACE/hudson/$REPO_BRANCH-setup.sh ]
 then
   $WORKSPACE/hudson/$REPO_BRANCH-setup.sh
@@ -284,9 +300,9 @@ then
   fi
 fi
 
-if [ ! "$(ccache -s|grep -E 'max cache size'|awk '{print $4}')" = "100.0" ]
+if [ ! "$(ccache -s|grep -E 'max cache size'|awk '{print $4}')" = "15.0" ]
 then
-  ccache -M 100G
+  ccache -M 15G
 fi
 
 rm -f $WORKSPACE/changecount
@@ -349,7 +365,8 @@ then
 else
   for f in $(ls $OUT/cm-*.zip*)
   do
-    ln $f $WORKSPACE/archive/$(basename $f)
+    targetf=`basename $f | sed "s/.zip$/-${BUILD_NO}.zip/g"`
+    ln $f $WORKSPACE/archive/$targetf
   done
 fi
 if [ -f $OUT/utilties/update.zip ]
